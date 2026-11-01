@@ -90,6 +90,12 @@ function update(activity) {
 function processResponse(response) {
   var status = response && response.volumeStatus;
   if (!status) return;
+  if (status.soundOutput !== 'external_arc') {
+    master = status;
+    last = null;
+    queued = null;
+    return;
+  }
   var activity = master && (master.volume !== status.volume || master.muteStatus !== status.muteStatus);
   master = status;
   if (activity) wakeArcPoll();

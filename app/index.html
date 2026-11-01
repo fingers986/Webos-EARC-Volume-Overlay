@@ -40,7 +40,9 @@ function showOverlay(input,preview){
 var p=paramsOf(input),n=Number(p.volume),alreadyVisible=document.body.className==='overlay-mode'&&overlay.className==='show';
 if(!isFinite(n))n=0;n=Math.max(0,Math.min(100,Math.round(n)));
 clearOverlayTimers();
-if(!alreadyVisible)setWindowType('overlay');
+// The app is launched for volume display, so its manifest already creates an
+// overlay window. Avoid switching a newly launched card to floating here.
+if(!alreadyVisible&&window.PalmSystem&&PalmSystem.setWindowProperty)PalmSystem.setWindowProperty('needFocus','false');
 var displayed=(p.mute===true||p.muted===true)?0:n;
 value.textContent=String(displayed);volumeFill.style.transform='scaleX('+(displayed/100)+')';
 document.body.className='overlay-mode';
