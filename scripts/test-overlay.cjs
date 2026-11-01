@@ -19,6 +19,8 @@ const document = {
   addEventListener(name, fn) { listeners[name] = fn; }
 };
 const html = fs.readFileSync('app/index.html', 'utf8');
+const appInfo = JSON.parse(fs.readFileSync('app/appinfo.json', 'utf8'));
+assert.equal(appInfo.defaultWindowType, 'overlay', 'volume app launches directly as an overlay');
 const script = html.match(/<script>\s*([\s\S]*?)<\/script>/)[1];
 vm.runInNewContext(script, { window, document, PalmSystem: window.PalmSystem });
 function fire(ms) {
@@ -49,7 +51,7 @@ assert.equal(elements.overlay.className, 'show');
 fire(1850); fire(220);
 assert.equal(closes, 1);
 // The latest appearance also schedules a focus release.
-assert.equal(windowTypes[0], '_WEBOS_WINDOW_TYPE_FLOATING');
+assert.equal(windowTypes.length, 0, 'volume display does not switch window types after launch');
 assert.equal(focusModes.at(-1), 'false', 'overlay releases input focus after native window creation');
 assert.equal(inputRegions[0][0].width, 0, 'native input region must be a zero-size rectangle');
 assert.deepEqual(keyMasks.at(-1), ['KeyMaskDefault']);
@@ -60,7 +62,7 @@ assert.equal(windowTypes.at(-1), '_WEBOS_WINDOW_TYPE_CARD');
 listeners.webOSRelaunch({ detail: { volume: 20 } });
 assert.equal(document.body.className, 'setup-mode', 'background updates do not dismiss settings');
 elements.test.onclick();
-assert.equal(windowTypes.at(-1), '_WEBOS_WINDOW_TYPE_FLOATING');
+assert.equal(windowTypes.at(-1), '_WEBOS_WINDOW_TYPE_CARD', 'preview starts from the setup card');
 fire(20); fire(1850); fire(220);
 assert.equal(document.body.className, 'setup-mode', 'preview returns to settings');
 assert.equal(windowTypes.at(-1), '_WEBOS_WINDOW_TYPE_CARD');
